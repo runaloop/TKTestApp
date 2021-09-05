@@ -2,19 +2,17 @@ package com.catp.tinkoffandroidlab.ui.main.tab
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.catp.tinkoffandroidlab.ui.main.data.ButtonEvent
 import com.catp.tinkoffandroidlab.ui.main.data.Item
 import com.catp.tinkoffandroidlab.ui.main.data.Repository
 import com.catp.tinkoffandroidlab.ui.main.data.TabType
-import com.catp.tinkoffandroidlab.ui.main.main.Injector
+import com.catp.tinkoffandroidlab.ui.main.main.ButtonEnableEventHandler
+import com.catp.tinkoffandroidlab.ui.main.main.ButtonEventHandler
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.io.IOException
 
-class TabViewModel(private val tabType: TabType) : ViewModel() {
+class TabViewModel(private val tabType: TabType) : ViewModel(), ButtonEventHandler {
     private val _items = MutableStateFlow<List<Item>>(emptyList())
     val items = _items.asStateFlow()
 
@@ -28,6 +26,8 @@ class TabViewModel(private val tabType: TabType) : ViewModel() {
 
     private var currentPageIndex = 0
 
+    private var buttonEnableEventHandler: ButtonEnableEventHandler? = null
+
     val errorChannel = Channel<Boolean>()
 
     init {
@@ -35,19 +35,15 @@ class TabViewModel(private val tabType: TabType) : ViewModel() {
     }
 
     private fun fetchPage(page: Int = 0) {
-        println("🔥 ${tabType.api}::fetchNextPage")
         viewModelScope.launch {
             try {
                 _loadingStatus.value = true
                 repository.fetch(tabType, page).takeIf { !it.isNullOrEmpty() }?.let {
-                    println("🔥 ${tabType.api}::fetchNextPage emitting: ${it.size} items")
                     _items.emit(it)
                 }
             } catch (exception: Throwable) {
-                println("🔥 ${tabType.api}::fetchNextPage catch: ${exception.message}")
                 errorChannel.send(true)
             } finally {
-                println("🔥 ${tabType.api}::fetchNextPage loadingStatus false")
                 updateNavigationButtons()
                 _loadingStatus.value = false
             }
@@ -65,8 +61,8 @@ class TabViewModel(private val tabType: TabType) : ViewModel() {
     }
 
     private fun updateNavigationButtons() {
-        Injector.nextButtonAvailability.value = _selectionIndex.value < _items.value.size
-        Injector.backButtonAvailability.value = _selectionIndex.value > 0
+        buttonEnableEventHandler?.updateBackButtonState(_selectionIndex.value > 0)
+        buttonEnableEventHandler?.updateNextButtonState(_selectionIndex.value < _items.value.size)
     }
 
     private fun goBack() {
@@ -76,14 +72,6 @@ class TabViewModel(private val tabType: TabType) : ViewModel() {
         updateNavigationButtons()
     }
 
-    fun onButtonEvent(event: ButtonEvent) {
-        println("🔥 ${tabType.api}::onButtonEvent ${event.javaClass.simpleName}")
-        when(event){
-            is ButtonEvent.OnBackButtonPressed->goBack()
-            is ButtonEvent.OnNextButtonPressed->goNext()
-        }
-    }
-
     fun onRetryClicked() {
         viewModelScope.launch {
             errorChannel.send(false)
@@ -91,7 +79,21 @@ class TabViewModel(private val tabType: TabType) : ViewModel() {
         }
     }
 
+    override fun onBackPressed() {
+        goBack()
+    }
+
+    override fun onNextPressed() {
+        goNext()
+    }
+
+    fun setButtonEnableHandler(eventHandler: ButtonEnableEventHandler?) {
+        buttonEnableEventHandler = eventHandler
+        updateNavigationButtons()
+    }
+
     companion object {
         const val PREFETCH_INDEX = 3
     }
+
 }

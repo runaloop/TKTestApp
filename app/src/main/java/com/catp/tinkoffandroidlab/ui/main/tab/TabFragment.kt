@@ -14,10 +14,9 @@ import com.catp.tinkoffandroidlab.R
 import com.catp.tinkoffandroidlab.databinding.TabFragmentBinding
 import com.catp.tinkoffandroidlab.ui.main.data.TabType
 import com.catp.tinkoffandroidlab.ui.main.gifing.ContentPagerAdapter
-import com.catp.tinkoffandroidlab.ui.main.main.Injector
+import com.catp.tinkoffandroidlab.ui.main.main.MainViewModel
 import com.catp.tinkoffandroidlab.ui.main.visibleIf
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -35,8 +34,6 @@ class TabFragment : Fragment() {
     private val viewBinding: TabFragmentBinding by viewBinding()
     private var contentPagerAdapter: ContentPagerAdapter? = null
     private val tabType by lazy { arguments?.get(TYPE) as TabType }
-
-    private var job: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -78,26 +75,20 @@ class TabFragment : Fragment() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
-    }
-
-    override fun onStart() {
-        super.onStart()
-    }
-
     override fun onPause() {
-        //job?.cancel()
+        ViewModelProvider(requireActivity()).get(MainViewModel::class.java).let {
+            it.unRegisterNavigationButtonHandler(viewModel)
+            viewModel.setButtonEnableHandler(null)
+        }
         super.onPause()
     }
 
     override fun onResume() {
         super.onResume()
-        job = Injector.buttonEventChannel.consumeAsFlow().onEach { viewModel.onButtonEvent(it) }
-            .launchIn(viewLifecycleOwner.lifecycleScope)
-        /*job = viewLifecycleOwner.lifecycleScope.launch {
-            Injector.buttonEventChannel.consumeEach { viewModel.onButtonEvent(it) }*/
-
+        ViewModelProvider(requireActivity()).get(MainViewModel::class.java).let {
+            it.registerNavigationButtonHandler(viewModel)
+            viewModel.setButtonEnableHandler(it)
+        }
     }
 
     private fun setLoading(loading: Boolean) {

@@ -16,7 +16,6 @@ import com.catp.tinkoffandroidlab.ui.main.tab.TabPagerAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.util.*
 
 class MainFragment : Fragment() {
 
@@ -36,7 +35,7 @@ class MainFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
         initAdapter()
     }
 
@@ -49,28 +48,20 @@ class MainFragment : Fragment() {
                 tab.text = TabType.byIndex(position).api.uppercase()
             }.attach()
 
-            Injector.backButtonAvailability
-                .onEach {
-                    println("🔥goBack enable: $it")
-                    ivGoBack.enableIf { it }
-                }
-                .launchIn(viewLifecycleOwner.lifecycleScope)
-
-            Injector.nextButtonAvailability
-                .onEach {
-                    println("🔥goNext enable: $it")
-                    ivGoNext.enableIf { it }
-                }
-                .launchIn(viewLifecycleOwner.lifecycleScope)
-
             ivGoBack.setOnClickListener {
-                println("🔥onClick BACK")
-                viewModel.movePrevItem()
+                viewModel.moveBackItem()
             }
             ivGoNext.setOnClickListener {
-                println("🔥onClick NEXT")
                 viewModel.moveNextItem()
             }
+
+            viewModel.backButtonState.onEach {
+                ivGoBack.enableIf { it }
+            }.launchIn(viewLifecycleOwner.lifecycleScope)
+
+            viewModel.nextButtonState.onEach {
+                ivGoNext.enableIf { it }
+            }.launchIn(viewLifecycleOwner.lifecycleScope)
         }
 
     }
