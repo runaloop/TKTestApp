@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.main.main.MainFragment">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/tvTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvTitle"
+        app:srcCompat="@drawable/ic_baseline_person_pin_24"
+        app:tint="?attr/colorPrimary" />
+
+    <TextView
+        android:id="@+id/tvTitle"
+        style="@style/TextAppearance.MaterialComponents.Headline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:text="@string/developers_life"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:layout_marginVertical="8dp"
+        android:id="@+id/tlSwitcher"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vpContent"
+        android:layout_width="0dp"
+        android:layout_height="400dp"
+        android:layout_marginVertical="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tlSwitcher" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/glMiddle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <ImageView
+        android:id="@+id/ivGoBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/circular_button_bg"
+        android:elevation="8dp"
+        app:layout_constraintEnd_toStartOf="@id/glMiddle"
+        app:layout_constraintTop_toBottomOf="@id/vpContent"
+        app:srcCompat="@drawable/ic_baseline_settings_backup_restore_24"
+        app:tint="?attr/colorSecondary" />
+
+    <ImageView
+        android:id="@+id/iv_go_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/circular_button_bg"
+        android:elevation="8dp"
+        app:layout_constraintStart_toStartOf="@id/glMiddle"
+        app:layout_constraintTop_toBottomOf="@id/vpContent"
+        app:srcCompat="@drawable/ic_baseline_arrow_forward_24"
+        app:tint="?attr/colorPrimary" />
+
+    <View
+        android:layout_width="60dp"
+        android:layout_height="2dp"
+        android:layout_marginTop="20dp"
+        android:background="?attr/colorOnSecondary"
+        app:layout_constraintEnd_toEndOf="@id/glMiddle"
+        app:layout_constraintStart_toStartOf="@id/glMiddle"
+        app:layout_constraintTop_toBottomOf="@id/iv_go_next" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
